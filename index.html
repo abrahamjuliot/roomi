@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+
+  <!--
+    - es6 -> es5; css prefix please; ie11, edge, firefox test
+    - color code room selections: background + white font
+    -->
+  <noscript>
+    For full functionality of this web app it is necessary to enable JavaScript.
+    View the <a href="https://www.enable-javascript.com/">instructions to enable JavaScript in your web browser</a>.
+  </noscript>
+
+  <style>
+    body {
+      background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+      animation: fadein .7s 1s ease both;
+    }
+
+    h4,
+    #logger {
+      text-align: center
+    }
+
+    #app-reserve .header {
+      margin: 0 auto 40px;
+    }
+
+    #app-reserve,
+    #events-section {
+      background: #fff;
+      max-width: 700px;
+      margin: 10px auto;
+      float: none !important;
+      padding: 20px !important;
+    }
+
+    #modal-delete, #modal {
+      max-width: 700px;
+    }
+
+    #modal-delete .modal-action-container {
+      max-width: 250px;
+      margin: 0 auto;
+    }
+
+    #events-section {
+      background: rgba(255, 255, 255, 0);
+      border: 2px solid #fff;
+      border-radius: 2px;
+      transition: height .3s ease;
+    }
+
+    #events-section {
+      color: #fff;
+    }
+
+    .material-icons {
+      color: #3c4043;
+    }
+
+    .ghost {
+      visibility: hidden
+    }
+
+    @keyframes fadein {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .card .card-content {
+      padding: 10px 15px;
+    }
+
+    .card.horizontal .card-image {
+      width: 10px;
+    }
+
+    .card .badge {
+      padding: 6px;
+      height: initial;
+    }
+    
+    .sci-lab-217-conference-room,
+    .sci-lab-301-classroom,
+    .sci-lab-311-break-room,
+     #room-select li span:after {
+      color: #fff;
+    }
+    
+    #room-select li span:after {
+      margin-left: 14px;
+      text-align: center;
+      float: right;
+      box-sizing: border-box;
+      font-weight: 300;
+      font-size: 0.9rem;
+      border-radius: 2px;
+      padding: 0 6px;
+      line-height: 24px;
+      height: 24px;
+    }
+    
+    .card-content--title {
+      font-weight: bold;
+      color: #000;
+    }
+
+    .event-data {
+      color: #000;
+      padding: 15px 10px;
+      border-radius: 5px;
+      margin: 5px auto 0;
+      line-height: 1.5
+    }
+
+    .card-content--room {
+      font-weight: bold;
+      color: #000;
+      padding: 2px;
+    }
+
+    .card-content--time {
+      padding: 10px;
+    }
+
+    .card-content--occurs {
+      padding: 15px 10px;
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .card.horizontal {
+      background: rgba(255, 255, 255, 0.81);
+      border-radius: 3px;
+    }
+
+    .event-container {
+      background: rgba(255, 255, 255, 0);
+    }
+
+    #upcoming-events,
+    .event-container {
+      flex-wrap: wrap;
+      display: flex;
+    }
+
+    .card.horizontal,
+    .event-container {
+      flex: 1 auto;
+    }
+
+    #upcoming-events .btn,
+    #upcoming-events .material-icons {
+      color: #777;
+    }
+
+    #upcoming-events .card-stacked {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    #calendars button { margin-left: 15px;}
+    #calendars {
+      margin: 0 auto 30px;
+      background: linear-gradient(to right, rgba(127, 127, 213, 0.32), rgba(134, 168, 231, 0.38), rgba(145, 234, 228, 0.23));
+      padding: 10px;
+    }
+    .fade-out-bck {
+      animation: rotate-out-2-bl-cw 0.3s cubic-bezier(0.600, 0.040, 0.980, 0.335) both;
+    }
+
+    @keyframes rotate-out-2-bl-cw {
+      0% {
+        transform: rotate(0);
+        transform-origin: 0 100%;
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(45deg);
+        transform-origin: 0 100%;
+        opacity: 0;
+      }
+    }
+
+    .fade-in-bck {
+      animation: fade-out-bck 0.3s cubic-bezier(0.215, 0.610, 0.355, 1.000) reverse both;
+    }
+
+    @keyframes fade-in-bck {
+      0% {
+        transform: translateZ(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateZ(-80px);
+        opacity: 0;
+      }
+    }
+    .modal-content .notice {
+      background: #ff0047;
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+  </style>
+  <!-- Modal Structure -->
+  <div id="computedStyles"></div>
+  
+  <div id="modal" class="modal">
+    <a class="modal-close waves-effect waves-green btn-flat right"><i class="material-icons">close</i></a>
+    <div class="modal-content center">
+      <h4>Thank you</h4>
+      <p>We sent a confirmation email to you.</p>
+    </div>
+  </div>
+
+  <!-- Modal Structure -->
+  <div id="modal-delete" class="modal modal-delete">
+    <div class="modal-content">
+      <h5 class="center"><i class="material-icons">warning</i>delete</h5>
+      <p class="center">This event will be deleted</p>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-action-container center">
+        <button id="delete-cancel" class="modal-close btn-large waves-effect waves-light left">Cancel</button>
+        <button id="delete-event" class="modal-close btn-large waves-effect waves-light right">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="row">
+    <form id="app-reserve" class="col s12 z-depth-2">
+      <div class="row">
+        <strong>ENSC Room Reservation</strong>
+        <div class="col s12" id="calendars"></div>
+        <div class="header">
+          <div id="logger">
+            Loading...
+          </div>
+        </div>
+        <div class="input-field col s12 m6">
+          <input name="Name" data-length="120" id="name" class="form-input validate"
+            placeholder="Enter your full name" type="text" required>
+          <label for="name">Name</label>
+        </div>
+
+        <div class="input-field col s12 m6">
+          <input name="Dept" data-length="120" placeholder="Enter your department" type="text" id="dept"
+            class="dept-autocomplete form-input validate" required>
+          <label for="dept">Dept</label>
+        </div>
+
+        <div class="input-field col s12 m6">
+          <input name="Title" data-length="120" placeholder="Enter the event title" type="text" id="title"
+            class="title-autocomplete form-input validate" required>
+          <label for="title">Event Title</label>
+        </div>
+        <div id="room-select">
+          <div class="input-field col s12 m6">
+            <select name="Room" id="room" class="form-input" required>
+              <option value="" disabled selected>Select a room</option>
+              <option value="217">217</option>
+              <option value="301">301</option>
+              <option value="311">311</option>
+            </select>
+            <label>Room</label>
+          </div>
+        </div>
+        <div class="input-field col s12 m4">
+          <i class="material-icons prefix">today</i>
+          <input name="Begin" id="startdate" class="datepicker form-input" placeholder="Select the begin date"
+            type="text" required>
+          <label for="startdate">Begin</label>
+          <span class="helper-text" id="startdate-error" data-error="Calendar conflict exists"
+            data-success="Available"></span>
+        </div>
+
+        <div class="input-field col s12 m4">
+          <i class="material-icons prefix">access_time</i>
+          <input name="Start Time" id="starttime" class="timepicker form-input" placeholder="Select the start time"
+            type="text" required>
+          <label for="starttime">Start Time</label>
+          <span class="helper-text" data-error="Start time is after end time" data-success=""></span>
+        </div>
+
+        <div class="input-field col s12 m4">
+          <i class="material-icons prefix">access_time</i>
+          <input name="End Time" id="endtime" class="timepicker form-input" placeholder="Select the end time"
+            type="text" required>
+          <label for="endtime">End Time</label>
+          <span class="helper-text" data-error="End time is before start time" data-success=""></span>
+        </div>
+
+        <div class="input-field col s12 m4">
+          <i class="material-icons prefix">replay</i>
+          <select name="Occur" class="form-input occur" id="occur" required>
+            <option value="Once">Once</option>
+            <option value="Weekly">Weekly</option>
+          </select>
+          <label>Occur</label>
+        </div>
+
+        <div class="input-field col s12 m4 weekly-setting ghost">
+          <i class="material-icons prefix">date_range</i>
+          <select name="Occur Weekly On" id="weekly" class="weekly weekly-form-input" multiple required disabled>
+            <option value="" disabled>Select 1 or more</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+          </select>
+          <label>Occur Weekly on</label>
+        </div>
+
+        <div class="input-field col s12 m4 weekly-setting ghost">
+          <i class="material-icons prefix">today</i>
+          <input name="Until" class="weekly datepicker weekly-form-input" id="enddate"
+            placeholder="Select the until date" type="text" disabled required>
+          <label for="enddate">Until</label>
+          <span class="helper-text" data-error="Begin date is after until date" data-success=""></span>
+        </div>
+
+        <div class="input-field col s12 m6">
+          <button id="submit" class="btn-large waves-effect waves-light disabled" type="submit"
+            name="action">Submit</button>
+        </div>
+        
+      </div>
+      <div id="loading" class="ghost">
+        <span>Checking calendar for conflicts...</span>
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+
+    </form>
+    <div id="events-section">
+
+      <div id="events-loader" class="ghost">
+        <span>Loading events...</span>
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+
+      <div id="upcoming-events"></div>
+
+    </div>
+
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    // helpers
+
+    // doc readyState
+    const ready = (fn) => document.readyState != 'loading' ? fn() :
+      document.addEventListener('DOMContentLoaded', fn);
+
+    // ie11 fix for template.content
+    function templateContent(template) {
+      // template {display: none !important} /* add css if template is in dom */
+      if ('content' in document.createElement('template')) {
+        return document.importNode(template.content, true)
+      } else {
+        const frag = document.createDocumentFragment()
+        const children = template.childNodes
+        for (let i = 0, len = children.length; i < len; i++) {
+          frag.appendChild(children[i].cloneNode(true))
+        }
+        return frag
+      }
+    }
+
+    // tagged template literal (JSX alternative)
+    const patch = (oldEl, newEl, fn = null) => {
+      oldEl.parentNode.replaceChild(newEl, oldEl)
+      
+      return typeof fn === 'function' && fn()
+    }
+    const html = (stringSet, ...expressionSet) => {
+      const template = document.createElement('template')
+      template.innerHTML = stringSet.map((str, i) => `${str}${expressionSet[i] || ''}`).join('')
+      return templateContent(template) // ie11 fix for template.content
+    }
+
+    // template iterator
+    const repeat = (list, fn) => list.map(item => fn(item)).join('')
+
+    // template conditional
+    const when = (x, template) => x ? `${template}` : ''
+
+
+    function convertTextToCSSClass(x) {
+      return x.toLowerCase().split(' ').join('-')
+    }
+         
+    // get calendar links
+    function getCalendars() {
+      
+      function onSuccess(res) {
+        const calendars = document.getElementById('calendars')
+        patch(
+          calendars,
+          html`
+            <div class="col s12" id="calendars">
+              <div class="cal-links right">
+                <span class="hide-on-small-only">View the calendars:</span>
+                ${repeat(res, item => `<button class="cal-link waves-effect waves-light btn-small modal-trigger" data-link="${item.link}" data-target="cal-modal-${item.name}" target="_blank">${item.name}</button>`)}
+              </div>
+              ${repeat(res, item => `
+                <div id="cal-modal-${item.name}" class="modal cal-modals">
+                  <a class="modal-close waves-effect waves-green btn-flat right"><i class="material-icons">close</i></a>
+                  <div class="modal-content">
+                    <span class="notice">Please wait till the beginning of the quarter to reserve non-course activities.</span>
+                    <iframe id="cal-${item.name}-frame" height="500" width="100%" style="border:none;" src="${item.link}"></iframe>
+                  </div>
+                </div>
+              `)}
+            </div>`,
+          function() {
+            return M.Modal.init(document.querySelectorAll('.cal-modals'), {})
+          }
+        )
+        
+      } // end onSuccess
+      
+      function onFailure(error) {
+        console.error(error)
+      }
+      
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .getCalendars()
+    }
+
+    // loading calendar source
+    function reloadCalendars() {
+      function onSuccess(res) {
+        res.forEach(function(item) {
+          const iframe = document.getElementById(`cal-${item.name}-frame`)
+          patch(iframe, html`
+            <div id="cal-${item.name}-frame" class="preloader-wrapper small active">
+              <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+            </div>`
+          )
+        })
+      } // end onSuccess
+      
+      function onFailure(error) {
+        console.error(error)
+      }
+      
+      return google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .getCalendars()
+    }
+    
+    // refresh calendar source
+    function refreshCalendars() {
+      function onSuccess(res) {
+        res.forEach(function(item) {
+          const loader = document.getElementById(`cal-${item.name}-frame`)
+          patch(loader, html`
+            <iframe id="cal-${item.name}-frame" height="500" width="100%" style="border:none;" src="${item.link}"></iframe>
+          `)
+        })
+      } // end onSuccess
+      
+      function onFailure(error) {
+        console.error(error)
+      }
+      
+      return google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .getCalendars()
+    }
+    
+    function getCalendarStyles() {
+      // in order for this to work, calendar titles must not begin with number
+      function onSuccess(res) {
+        const styles = res.reduce(function(str, item, index) {
+          const green = '#00acc1', blue = '#1E88E5', purple = '#3949ab'
+          const color = index == 0 ? green : index == 1 ? blue : index == 2 ? purple : 'initial'
+          
+          return str+= `
+          .${convertTextToCSSClass(item.title)} .card-image,
+          .${convertTextToCSSClass(item.title)} .badge.new,
+           #room-select li:nth-of-type(${index+2}) span:after,
+           #calendars button:nth-of-type(${index+1}) {
+            background: ${color};
+          }
+          #room-select li:nth-of-type(${index+2}) span { color: ${color}; }
+          #room-select li:nth-of-type(${index+2}) span:after { content: "Capacity: ${item.capacity}" }
+          `
+        }, ``)
+        
+        
+        const computedStylesEl = document.getElementById('computedStyles')
+        return patch(computedStylesEl, html`<style>${styles}</style>`)
+      }
+
+      function onFailure(error) {
+        console.error(error)
+      }
+      
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .getCalendarData()
+    }
+    
+    // user events
+    function eventTemplate(item) {
+      const today = new Date()
+      const dateCreated = new Date(item.created)
+      const dateStringOptions = { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' }
+
+      today.setHours(0, 0, 0, 0)
+      dateCreated.setHours(0, 0, 0, 0)
+
+      return `
+      <div data-id="${item.id}" class="event-container col s12 m6 ${convertTextToCSSClass(item.calendar)}">
+          <div class="card horizontal">
+          <div class="card-image"></div>
+          <div class="card-stacked">
+              <div class="card-content">
+              <div class="card-content--title">${item.title}${!(dateCreated.getTime() < today.getTime()) ? `<span class="new badge"></span>` : ``}</div>
+              <div class="event-data">
+                  <div class="card-content--room">${item.calendar}</div>
+                  <div class="card-content--time">${item.start} - ${item.end} on ${(new Date(item.begin)).toLocaleDateString('en-US', dateStringOptions)}</div>
+                  ${when(item.recurrence, `<div class="card-content--occurs">${item.recurrence}</div>`)}
+              </div>
+              </div>
+              <div class="card-action">
+              <a data-id="${item.id}" title="delete" class="event-delete btn truncate waves-effect waves-default right white"><i data-id="${item.id}" class="event-delete material-icons tooltipped">delete</i></a>
+              </div>
+          </div>
+          </div>
+      </div>`
+    }
+    
+    // get upcoming events
+    function getUpcomingEvents() {
+      const eventsLoader = document.getElementById('events-loader')
+      const upcomingEvents = document.getElementById('upcoming-events')
+      eventsLoader.classList.remove('ghost')
+
+      function onSuccess(data) {
+        eventsLoader.classList.add('ghost')
+        const objData = JSON.parse(data)
+        const emptyTempate = `
+          <div class="row fade-in-bck" id='upcoming-events'>
+            <h5 class="center" style="width: 100%;" >Create an Event</h5>
+            <div class="center" style="width: 100%;">Your upcoming events will show here.</div>
+          </div>`
+        const template = `
+          <div class="row fade-in-bck" id='upcoming-events'>
+              <h5 class="center" style="width: 100%;" >Your current events</h5>
+              ${repeat(objData, eventTemplate)}
+          </div>`
+        return patch(
+          upcomingEvents,
+          html`${objData.length ? template : emptyTempate}`
+        )
+      }
+      function onFailure(error) {
+        return patch(
+          upcomingEvents,
+          html`
+            <div id='upcoming-events'>
+                <p>Error: Failed to get events</p>
+                <p>${error}</p>
+            </div>`
+        )
+      }
+      return google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .getEventDataByUser()
+    }
+
+    // when dom loaded
+    ready(() => {
+      getCalendarStyles()
+      getCalendars()
+      getUpcomingEvents()
+
+      // listen for delete events
+      const app = document.getElementById('app')
+      const modalDeleteElems = document.querySelectorAll('.modal-delete')
+      const modalDeleteElem = document.getElementById('modal-delete')
+      const modalDeleteInstances = M.Modal.init(modalDeleteElems, {})
+
+      app.addEventListener('click', function (event) {
+        const el = event.target
+        
+        if (el.classList.contains('event-delete')) {
+         
+          M.Modal.getInstance(modalDeleteElem).open()
+          modalDeleteElem.addEventListener('click', function (event) {
+            const modalEl = event.target
+            if (modalEl.id == 'delete-event') {
+              reloadCalendars()
+              const eventId = el.dataset.id
+              const eventElems = document.querySelectorAll('.event-container')
+              const matchingEvent = [...eventElems].filter(elem => elem.dataset.id == eventId)[0]
+              
+              // animate element delete
+              if (matchingEvent) {
+                matchingEvent.classList.add('fade-out-bck')
+                setTimeout(function () {
+                  patch(matchingEvent, html`
+                    <div class="event-container col s12 m6" style="display:flex; align-items:center; justify-content:center;">
+                        <div class="preloader-wrapper small active">
+                          <div class="spinner-layer spinner-green-only" style="border-color: #fff;">
+                            <div class="circle-clipper left">
+                              <div class="circle"></div>
+                            </div><div class="gap-patch">
+                              <div class="circle"></div>
+                            </div><div class="circle-clipper right">
+                              <div class="circle"></div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>`
+                  )
+                }, 400)
+              }
+              
+              function onSuccess(didDeleteEvent) {
+                //if no other events are deleting, retest form change and reload events
+                const beginEl = document.getElementById('startdate')
+                if (beginEl.value) {                
+                  beginEl.dispatchEvent(new Event('change', { 'bubbles': true })) // recheck calendar if there's a value
+                }
+                refreshCalendars()
+                getUpcomingEvents()
+              }
+              function onFailure(didDeleteEvent) { }
+              // need to disable submit here
+              google.script.run
+                .withSuccessHandler(onSuccess)
+                .withFailureHandler(onFailure)
+                .deleteEventById(eventId)
+            
+              modalDeleteElem.removeEventListener('click', arguments.callee, false)
+            } // end if
+            // in any case
+            modalDeleteElem.removeEventListener('click', arguments.callee, false)
+          }) // end deleteEvent on click
+        } // end if event-delete class
+      }) // end app on click
+
+
+      // Materialize date picker
+      const form = document.getElementById('app-reserve')
+      const datepickerElems = document.querySelectorAll('.datepicker')
+      const timepickerElems = document.querySelectorAll('.timepicker')
+      const deptAutocompleteElems = document.querySelectorAll('.dept-autocomplete')
+      const titleAutocompleteElems = document.querySelectorAll('.title-autocomplete')
+      const selectElems = document.querySelectorAll('select')
+      const modalElems = document.querySelectorAll('.modal')
+      const modalElem = document.getElementById('modal')
+      const today = new Date()
+      const limitMonths = 12
+      const datepickerOptions = {
+        setDefaultDate: new Date(today),
+        disableWeekends: true,
+        minDate: new Date(today),
+        maxDate: new Date(today.setMonth(today.getMonth() + limitMonths))
+      }
+      const modalInstances = M.Modal.init(modalElems, {})
+
+      M.Datepicker.init(datepickerElems, datepickerOptions)
+      M.Timepicker.init(timepickerElems, {})
+      M.Autocomplete.init(deptAutocompleteElems, {
+        data: {
+          "Environmental Sciences": null,
+          "CNAS Dean\'s Office": null,
+          "BEES Administrative Unit": null
+        }
+      })
+      M.Autocomplete.init(titleAutocompleteElems, {
+        data: {
+          "Faculty Meeting": null,
+          "Lab Meeting": null,
+          "Staff Meeting": null,
+          "TA Hours": null,
+          "Interview": null,
+          "Recruitment": null,
+          "Exam": null,
+          "Defense": null
+        }
+      })
+      M.FormSelect.init(selectElems, {})
+      
+      // listen for Submit
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+        reloadCalendars()
+
+        // helpers
+        function formatDateString(str) {
+          const date = new Date(str)
+          const y = date.getFullYear()
+          const m = date.getMonth() + 1
+          const d = date.getDate()
+          return y + '-' + m + '-' + d
+        }
+
+        function getMilitaryTime(amPmStr) {
+          const d = new Date('2000/1/1 ' + amPmStr)
+          return d.getHours() + ':' + d.getMinutes()
+        }
+
+        function getSelections(el) {
+          return [...el.options].filter((x) => x.selected).map(option => option.value)
+        }
+
+        const form = document.getElementById('app-reserve')
+        const formElems = form.elements
+        const formInputElems = [...formElems].filter(el => el.classList.contains('form-input') || el.classList.contains('weekly-form-input'))
+        const res = formInputElems.reduce(function (res, el) {
+          const name = el.name
+          const val = el.value
+          res[name] = (name == 'Start Time' || name == 'End Time') ? getMilitaryTime(val) :
+            (name == 'Begin' || (name == 'Until' && val)) ? formatDateString(val) :
+              (name == 'Occur Weekly On') ? getSelections(el) : val
+          return res
+        }, {})
+        
+        function onFailure(error) {
+          // excute client error report
+          return
+        }
+
+        function onSuccess(username) {
+          res['User'] = username
+          const data = JSON.stringify(res)
+          const form = document.getElementById('app-reserve')
+
+          function onSuccess() {
+            refreshCalendars()
+            return getUpcomingEvents() // reload events
+          }
+
+          google.script.run
+            .withSuccessHandler(onSuccess)
+            .reserveRoom(data) // reserve event and send email
+
+          form.reset() // reset form
+          M.updateTextFields() // update fields
+          M.Modal.getInstance(modalElem).open() // show thank you modal
+          
+        }
+        
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .withFailureHandler(onFailure)
+          .getUsername()
+
+      }) // end form on submit
+
+      function validateForm(event) {
+
+        // helpers
+        function formatDateString(str) {
+          const date = new Date(str)
+          const y = date.getFullYear()
+          const m = date.getMonth() + 1
+          const d = date.getDate()
+          return y + '-' + m + '-' + d
+        }
+
+        function getMilitaryTime(amPmStr) {
+          const d = new Date('2000/1/1 ' + amPmStr)
+          return d.getHours() + ':' + d.getMinutes()
+        }
+
+        function getSelections(el) {
+          return [...el.options].filter((x) => x.selected).map(option => option.value)
+        }
+
+        // elements
+        const el = event.target
+        const form = document.getElementById('app-reserve')
+        const formElems = form.elements
+        const invalidClassFields = [...formElems].filter(el => el.classList.contains('form-input') && el.classList.contains('invalid'))
+        const invalidValidityFields = [...formElems].filter(el => el.classList.contains('form-input') && !el.validity.valid)
+        const invalidWeeklyClassFields = [...formElems].filter(el => el.classList.contains('weekly-form-input') && el.classList.contains('invalid'))
+        const invalidWeeklyValidityFields = [...formElems].filter(el => el.classList.contains('weekly-form-input') && !el.validity.valid)
+        const invalidFields = (invalidClassFields.length || invalidValidityFields.length)
+        const invalidWeeklyFields = (invalidWeeklyClassFields.length || invalidWeeklyValidityFields.length)
+        const timepickerElems = document.querySelectorAll('.timepicker')
+        const timesSelected = [...timepickerElems].filter(el => el.value != '')
+        const occurElem = document.getElementById('occur')
+        const weeklyEl = document.getElementById('weekly')
+        const occurElValue = occurElem.value
+        const weeklySelected = occurElValue == 'Weekly'
+        const weeklySettingElems = document.querySelectorAll('.weekly-setting')
+        const submitEl = document.getElementById('submit')
+        const weeklyElems = document.querySelectorAll('.weekly')
+        const selectElems = document.querySelectorAll('select')
+        const loading = document.getElementById('loading')
+
+        submitEl.classList.add('disabled') // disable, then check
+
+        // conditionally ghost weekly elems
+        if (weeklySelected) { weeklySettingElems.forEach(el => el.classList.remove('ghost')) }
+        else { weeklySettingElems.forEach(el => el.classList.add('ghost')) }
+
+        // conditionally enable weekly elems
+        if (el.classList.contains('occur')) {
+          weeklyElems.forEach(function (el) {
+            if (weeklySelected) { el.disabled = false } // enable
+            else { el.disabled = true; el.value = null } // disable and reset
+            M.FormSelect.init(selectElems, {})
+          })
+        }
+
+        // if a time element changed and its not blank
+        if (timesSelected.length) {
+          const starttimeElem = document.getElementById('starttime')
+          const endtimeElem = document.getElementById('endtime')
+          const startElValue = starttimeElem.value
+          const endElValue = endtimeElem.value
+          const startValue = new Date('2000/01/01 ' + startElValue).getTime()
+          const endValue = new Date('2000/01/01 ' + endElValue).getTime()
+          const roomEl = document.getElementById('room')
+          const beginEl = document.getElementById('startdate')
+          const untilEl = document.getElementById('enddate')
+          const roomValue = roomEl.value
+          const beginValue = beginEl.value
+          const untilElValue = untilEl.value
+          const bothTimesAreSelected = startElValue != '' && endElValue != ''
+          const bothRoomAndBeginAreSelected = roomValue != '' && beginValue != ''
+          const onceSettingSelected = occurElValue == 'Once'
+          const weeklySettingsSelected = weeklySelected && untilElValue != '' && getSelections(weeklyEl).length
+
+          if (bothTimesAreSelected) {
+
+            submitEl.classList.add('disabled') // default to disabled
+
+            if (startValue > endValue) {
+              [...timepickerElems].forEach(el => {
+                el.classList.remove('valid')
+                el.classList.add('invalid')
+                el.validity.valid = false
+                submitEl.classList.add('disabled')
+                M.updateTextFields()
+              })
+            } else {
+              [...timepickerElems].forEach(el => {
+                el.classList.remove('invalid')
+                el.classList.add('valid')
+                el.validity.valid = true
+                if (!invalidValidityFields.length) {
+                  if (!weeklySelected) {
+                    submitEl.classList.remove('disabled')
+                  } else if (!invalidWeeklyFields) {
+                    submitEl.classList.remove('disabled')
+                  }
+                }
+
+                M.updateTextFields()
+              })
+
+              // check if busy
+              if (bothRoomAndBeginAreSelected) {
+                const formattedBeginVal = formatDateString(beginValue)
+                const formattedStartVal = getMilitaryTime(startElValue)
+                const formattedEndVal = getMilitaryTime(endElValue)
+
+                function onFailure(error) {
+                  // excute client error report
+                  return
+                }
+
+                function setValid(el, isValid) {
+                  const submitEl = document.getElementById('submit')
+                  if (isValid) {
+                    el.classList.add('valid')
+                    el.classList.remove('invalid')
+                    el.validity.valid = isValid
+
+                    if (!invalidValidityFields.length) {
+                      if (!weeklySelected) {
+                        submitEl.classList.remove('disabled')
+                      } else if (!invalidWeeklyFields) {
+                        submitEl.classList.remove('disabled')
+                      }
+                    }
+
+                  } else {
+                    el.classList.remove('valid')
+                    el.classList.add('invalid')
+                    el.validity.valid = isValid
+                    submitEl.classList.add('disabled')
+                  }
+                  M.updateTextFields()
+                  return el
+                }
+
+                function onSuccess(res) {
+                  const conflict = res
+                  if (conflict) { setValid(beginEl, false) }
+                  else if (!conflict) { setValid(beginEl, true) }
+                  loading.classList.add('ghost')
+                }
+
+                if (onceSettingSelected) {
+                  submitEl.classList.add('disabled') // disable, then check
+
+                  loading.classList.remove('ghost')
+                  google.script.run
+                    .withSuccessHandler(onSuccess)
+                    .withFailureHandler(onFailure)
+                    .conflictClient(
+                      roomValue,
+                      formattedBeginVal,
+                      formattedStartVal,
+                      formattedEndVal
+                    )
+
+                } else if (weeklySettingsSelected) {
+
+                  const startDateErrorEl = document.getElementById('startdate-error')
+                  const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+                  const beginDay = (new Date(beginValue)).getDay()
+                  const untilDay = (new Date(untilElValue)).getDay()
+                  const selectedWeekdays = getSelections(weeklyEl).map(function (str) { return str.toLowerCase() })
+                  const isValidBegin = (selectedWeekdays.indexOf(weekdays[beginDay - 1]) > -1)
+                  const isValidUntil = (selectedWeekdays.indexOf(weekdays[untilDay - 1]) > -1)
+
+                  submitEl.classList.add('disabled') // disable, then check
+
+                  if (!isValidBegin || !isValidUntil) {
+                    startDateErrorEl.dataset.error = 'Begin & until days must land on a selected weekday'
+                    setValid(beginEl, false)
+                  } else if (isValidBegin && isValidUntil) {
+                    startDateErrorEl.dataset.error = 'Calendar conflict exists' // default
+                    setValid(beginEl, true)
+
+                    if (beginValue > untilElValue) {
+                      setValid(untilEl, false)
+                    } else {
+                      setValid(untilEl, true)
+
+                      submitEl.classList.add('disabled') // disable, then check
+
+                      loading.classList.remove('ghost')
+                      google.script.run
+                        .withSuccessHandler(onSuccess)
+                        .withFailureHandler(onFailure)
+                        .recurringConflictsClient({
+                          room: roomValue,
+                          repeat: getSelections(weeklyEl),
+                          begin: beginValue,
+                          until: untilElValue,
+                          starttime: startElValue,
+                          endtime: endElValue
+                        })
+                    }
+                  } // end else if
+                } // end else if
+              } // end check if busy
+            } // end else
+          }
+          else { // if/since both times are not selected
+            [...timepickerElems].forEach(el => el.classList.remove('valid', 'invalid'))
+          }
+
+
+        } // end if timesSelected.length
+
+
+        if (el.classList.contains('form-input') || el.classList.contains('weekly-form-input')) {
+          if (!weeklySelected) {
+            submitEl.classList.add('disabled')
+          } else if (invalidWeeklyFields) {
+            submitEl.classList.add('disabled')
+          }
+
+        }
+        else if (el.classList.contains('form-input') || el.classList.contains('weekly-form-input')) {
+          if (!weeklySelected) {
+            submitEl.classList.remove('disabled')
+          } else if (!invalidWeeklyFields) {
+            submitEl.classList.remove('disabled')
+          }
+
+        }
+      } //  end validateForm function
+
+      // listen for Change
+      form.addEventListener('change', validateForm)
+
+      // handle failure too
+      function onSuccess(res) {
+        document.getElementById('logger').innerHTML = res
+        return res
+      }
+      google.script.run.withSuccessHandler(onSuccess).logMessage()
+
+    }) // end ready
+
+  </script>
+</body>
+
+</html>
